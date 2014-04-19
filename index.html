@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Sinhetic</title>
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, height=device-height, target-densitydpi=device-dpi" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+    <link rel="stylesheet" href="ratchet/css/ratchet.min.css">
+    <link rel="stylesheet" href="ratchet/css/ratchet-theme-ios.min.css">
+    <style>	
+    #translation {
+		min-height: 71px;
+		padding: 5px;
+		margin: 0 0 20px;
+	}
+	
+	#dictionary {
+		min-height: 52px;
+		margin: 0 5px;
+		padding: 5px 0;
+		border-top: 1px solid #ddd;
+	}
+	
+	.word {
+		display: inline-block;
+		margin: 5px;
+		padding: 5px;
+		background: #ddd;
+		color: #111;
+	}
+	
+	.activeword {
+		background: #aaa;
+	}
+    </style>
+    
+    <script type="text/javascript" src="cordova.js"></script>
+    <script type="text/javascript" src="ratchet/js/ratchet.min.js"></script>
+    <script type="text/javascript" src="js/lodash.min.js"></script>
+    <script>
+	var dictionary = ['the', 'and', 'if', 'or', 'for', 'a', 'about', 'among', 'you'];
+	var tr = {
+		content		: null,
+		pinput		: null,
+		wordlist	: [],
+		
+		create: function() {
+			tr.content	= document.getElementById("content");
+			tr.pinput	= document.getElementById("pinput");
+		},
+		
+		engToSin: function(e) {
+			if((e.keyCode == 13 || e.keyCode == 32 || _.last(tr.pinput.value) == ' ') && tr.pinput.value.replace(/\s/g, '') != '') {
+				var words = tr.pinput.value.split(' ');
+				tr.wordlist.push(words[0]);
+				tr.pinput.value = (words.length > 1) ? words[1] : '';
+
+				tr.content.scrollTop = tr.content.scrollHeight;
+				tr.renderWordList();
+			}
+			
+			if(tr.pinput.value.replace(/\s/g, '') != '') {
+				document.getElementById('dictionary').innerHTML = '<div class="word activeword">' + tr.pinput.value + '</div>';
+				var regexp = new RegExp(tr.pinput.value, 'i'); 
+				
+				var matches = _.filter(dictionary, function(elem) {
+					return regexp.test(elem);
+				});
+				
+				if(matches.length > 0) {
+					document.getElementById('dictionary').innerHTML += '<div class="word">' + matches.join('</div><div class="word">') + '</div>';
+				}
+			}
+			else {
+				document.getElementById('dictionary').innerHTML = '';
+			}
+		},
+		
+		renderWordList: function() {
+			document.getElementById('translation').innerHTML = '<div class="word">' + tr.wordlist.join('</div><div class="word">') + '</div>';
+		},
+		
+		copyText: function() {
+			//window.plugins.copy(tr.wordlist.join(' '));
+			alert('Text Copied to Clipboard: ' + tr.wordlist.join(' ')); // change to toast
+		}
+	}
+	
+	document.addEventListener("deviceready", tr.create, false);
+    </script>
+  </head>
+  <body onload="tr.create()">
+    <header class="bar bar-nav">
+      <a class="icon icon-share pull-right" onclick="tr.copyText()"></a>
+      <h1 class="title">Sinhetic</h1>
+    </header>
+    
+    <div class="content" id="content">
+		<div id="translation"></div>
+		<div id="dictionary"></div>
+		<input id="pinput" type="text" placeholder="Type Here" onkeyup="tr.engToSin(event)">
+	</div>
+  </body>
+</html>
