@@ -18,10 +18,11 @@
 	}
 	
 	#dictionary {
-		min-height: 52px;
+		height: 52px;
 		margin: 0 5px;
 		padding: 5px 0;
 		border-top: 1px solid #ddd;
+		overflow: hidden;
 	}
 	
 	.word {
@@ -35,13 +36,18 @@
 	.activeword {
 		background: #aaa;
 	}
+	
+	#bottom-bar {
+		height: auto;
+	}
     </style>
     
     <script type="text/javascript" src="cordova.js"></script>
     <script type="text/javascript" src="ratchet/js/ratchet.min.js"></script>
     <script type="text/javascript" src="js/lodash.min.js"></script>
-    <script>
-	var dictionary = ['the', 'and', 'if', 'or', 'for', 'a', 'about', 'among', 'you'];
+    <script type="text/javascript" src="js/sinhala.js"></script>
+    <script type="text/javascript" src="js/sinhaladict.js"></script>
+    <script type="text/javascript">
 	var tr = {
 		content		: null,
 		pinput		: null,
@@ -55,7 +61,7 @@
 		engToSin: function(e) {
 			if((e.keyCode == 13 || e.keyCode == 32 || _.last(tr.pinput.value) == ' ') && tr.pinput.value.replace(/\s/g, '') != '') {
 				var words = tr.pinput.value.split(' ');
-				tr.wordlist.push(words[0]);
+				tr.wordlist.push({ lat: words[0], si: Sinhala.fromLatin(words[0]) });
 				tr.pinput.value = (words.length > 1) ? words[1] : '';
 
 				tr.content.scrollTop = tr.content.scrollHeight;
@@ -63,15 +69,16 @@
 			}
 			
 			if(tr.pinput.value.replace(/\s/g, '') != '') {
-				document.getElementById('dictionary').innerHTML = '<div class="word activeword">' + tr.pinput.value + '</div>';
-				var regexp = new RegExp(tr.pinput.value, 'i'); 
+				var s = Sinhala.fromLatin(tr.pinput.value);
+				document.getElementById('dictionary').innerHTML = '<div class="word activeword">' + s + '</div>';
+				var regexp = new RegExp(s, 'i'); 
 				
-				var matches = _.filter(dictionary, function(elem) {
+				var matches = _.filter(SinhalaDict, function(elem) {
 					return regexp.test(elem);
 				});
 				
 				if(matches.length > 0) {
-					document.getElementById('dictionary').innerHTML += '<div class="word">' + matches.join('</div><div class="word">') + '</div>';
+					document.getElementById('dictionary').innerHTML += '<div class="word" onclick="tr.addWord(this)">' + matches.join('</div><div class="word" onclick="tr.addWord(this)">') + '</div>';
 				}
 			}
 			else {
@@ -80,12 +87,20 @@
 		},
 		
 		renderWordList: function() {
-			document.getElementById('translation').innerHTML = '<div class="word">' + tr.wordlist.join('</div><div class="word">') + '</div>';
+			document.getElementById('translation').innerHTML = '<div class="word">' + _.pluck(tr.wordlist, 'si').join('</div><div class="word">') + '</div>';
+		},
+		
+		addWord: function(element) {
+			tr.wordlist.push({ lat: Sinhala.toLatin(element.innerHTML), si: element.innerHTML });
+			tr.renderWordList();
+			
+			tr.pinput.value = '';
+			document.getElementById('dictionary').innerHTML = '';
 		},
 		
 		copyText: function() {
 			//window.plugins.copy(tr.wordlist.join(' '));
-			alert('Text Copied to Clipboard: ' + tr.wordlist.join(' ')); // change to toast
+			alert('Text Copied to Clipboard: ' + _.pluck(tr.wordlist, 'si').join(' ')); // change to toast
 		}
 	}
 	
@@ -98,10 +113,13 @@
       <h1 class="title">Sinhetic</h1>
     </header>
     
-    <div class="content" id="content">
-		<div id="translation"></div>
+    <div id="bottom-bar" class="bar bar-footer">
 		<div id="dictionary"></div>
 		<input id="pinput" type="text" placeholder="Type Here" onkeyup="tr.engToSin(event)">
+	</div>
+	
+    <div class="content" id="content">
+		<div id="translation"></div>
 	</div>
   </body>
 </html>
