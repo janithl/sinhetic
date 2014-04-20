@@ -10,11 +10,13 @@
     <link rel="stylesheet" href="ratchet/css/ratchet.min.css">
     <link rel="stylesheet" href="ratchet/css/ratchet-theme-ios.min.css">
     <style>	
-    #content 		{ padding: 10px;	}
+    #content 		{ padding: 10px; }
     #translation 	{ min-height: 61px;	margin: 0 0 20px; }
 	#dictionary 	{ height: 42px;	padding: 5px 0;	border-top: 1px solid #ddd;	overflow: hidden; }
 	.word 			{ display: inline-block; margin: 0 5px 5px 0; padding: 5px;	background: #ddd; color: #111; }
 	.activeword		{ background: #aaa; }
+	#deletebtn		{ display: none; margin: 5px 0 0 5px; float: right; }
+	#output			{ display: none; }
     </style>
     
     <script type="text/javascript" src="cordova.js"></script>
@@ -26,11 +28,11 @@
 </head>
 <body onload="tr.create()">	
 	<div class="content" id="content">
-		<div id="translation"></div>
-		
-		<div id="dictionary"></div>
-		
-		<input id="pinput" type="text" placeholder="Type Something..." onkeyup="tr.engToSin(event)"  autocorrect="off" autocapitalize="off" autofocus>
+		<div 		id="translation"></div>
+		<textarea 	id="output" onblur="tr.hideOutput()"></textarea>
+		<button 	id="deletebtn" class="btn btn-negative" onclick="tr.deleteWord()"><span class="icon icon-trash"></span></button>
+		<div 		id="dictionary"></div>
+		<input 		id="pinput" type="text" placeholder="Type Something..." onkeyup="tr.engToSin(event)"  autocorrect="off" autocapitalize="off" autofocus>
 	</div>
 
 	<nav class="bar bar-tab">

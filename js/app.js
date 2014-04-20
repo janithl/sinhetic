@@ -1,5 +1,5 @@
 /**
- * Transliterator app to convert latin script phonetic Sinhala to Unicode Sinhala
+ * Transliterator app to convert Latin script phonetic Sinhala to Unicode Sinhala
  * https://github.com/janithl/sinhetic
  * 19/04/2014
  */
@@ -8,13 +8,17 @@ var tr = {
 	content		: null,
 	pinput		: null,
 	dict		: null,
+	deletebtn	: null,
+	output		: null,
 	editing		: null,
 	wordlist	: [],
 	
 	create: function() {
-		tr.trans	= document.getElementById("translation");
-		tr.pinput	= document.getElementById("pinput");
-		tr.dict		= document.getElementById("dictionary");
+		tr.trans		= document.getElementById("translation");
+		tr.pinput		= document.getElementById("pinput");
+		tr.dict			= document.getElementById("dictionary");
+		tr.deletebtn	= document.getElementById("deletebtn");
+		tr.output		= document.getElementById("output");
 	},
 	
 	engToSin: function(e) {
@@ -66,10 +70,11 @@ var tr = {
 		}
 		else {
 			/** if we are in editing mode, edit wordlist entry and render */
-			tr.wordlist[tr.editing] = { lat: lat, si: si };
-			tr.editing				= null;
+			tr.wordlist[tr.editing] 	= { lat: lat, si: si };
+			tr.editing					= null;
 			
 			tr.renderWordList();
+			tr.deletebtn.style.display	= 'none';
 		}
 		
 		tr.dict.innerHTML	= '';
@@ -87,8 +92,18 @@ var tr = {
 	},
 
 	copyText: function() {
-		//window.plugins.copy(tr.wordlist.join(' '));
-		alert('Text Copied to Clipboard: ' + _.pluck(tr.wordlist, 'si').join(' ')); // change to toast
+		/** copy output to text area, and select it for copy paste */
+		tr.output.value			= _.pluck(tr.wordlist, 'si').join(' ');
+		tr.output.style.display	= 'block';
+		tr.trans.style.display	= 'none';
+		tr.output.focus();
+		tr.output.select();
+	},
+	
+	hideOutput: function() {
+		/** get rid of output text area after copy */
+		tr.output.style.display	= 'none';
+		tr.trans.style.display	= 'block';
 	},
 	
 	clearWords: function() {
@@ -100,10 +115,26 @@ var tr = {
 	},
 	
 	editWord: function(index) {
-		tr.editing 			= index;
-		tr.dict.innerHTML	= tr.wordlist[index].si;
-		tr.pinput.value		= tr.wordlist[index].lat;
+		/** edit a word already in the wordlist */
+		tr.editing 					= index;
+		tr.dict.innerHTML			= tr.wordlist[index].si;
+		tr.pinput.value				= tr.wordlist[index].lat;
+		tr.deletebtn.style.display	= 'block';
 		tr.pinput.focus();
+	},
+	
+	deleteWord: function() {
+		/** delete a word in the wordlist */
+		if(tr.editing != null) {
+			tr.wordlist.splice(tr.editing, 1);
+			tr.editing					= null;
+			tr.renderWordList();
+			tr.deletebtn.style.display	= 'none';
+
+			tr.dict.innerHTML	= '';
+			tr.pinput.value		= '';
+			tr.pinput.focus();
+		}
 	}
 }
 
