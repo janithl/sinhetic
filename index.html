@@ -54,6 +54,7 @@
 		content		: null,
 		pinput		: null,
 		dict		: null,
+		editing		: null,
 		wordlist	: [],
 		
 		create: function() {
@@ -103,9 +104,19 @@
 				lat = Sinhala.toLatin(si);
 			}
 			
-			/** add word to wordlist, empty out input and dictionary lookup */
-			tr.trans.innerHTML += '<div onclick="tr.editWord(' + tr.wordlist.length + ')" class="word">' + si + '</div>';
-			tr.wordlist.push({ lat: lat, si: si });
+			/** if we're not in editing mode... */
+			if(tr.editing == null) {
+				/** ...add word to wordlist, empty out input and dictionary lookup */
+				tr.trans.innerHTML += '<div onclick="tr.editWord(' + tr.wordlist.length + ')" class="word">' + si + '</div>';
+				tr.wordlist.push({ lat: lat, si: si });
+			}
+			else {
+				/** if we are in editing mode, edit wordlist entry and render */
+				tr.wordlist[tr.editing] = { lat: lat, si: si };
+				tr.editing				= null;
+				
+				tr.renderWordList();
+			}
 			
 			tr.dict.innerHTML	= '';
 			tr.pinput.value		= '';
@@ -133,8 +144,9 @@
 					tr.onClearConfirm, 'Clear All Text', 'Yes,Cancel');
 			}
 			else {
-				var clear = window.confirm('Are you sure you want to clear all text?');
-				if(clear) { tr.onClearConfirm(1); }
+				if(window.confirm('Are you sure you want to clear all text?')) { 
+					tr.onClearConfirm(1); 
+				}
 			}
 		},
 		
@@ -143,6 +155,13 @@
 				tr.wordlist			= [];
 				tr.trans.innerHTML	= '';
 			}
+		},
+		
+		editWord: function(index) {
+			tr.editing 			= index;
+			tr.dict.innerHTML	= tr.wordlist[index].si;
+			tr.pinput.value		= tr.wordlist[index].lat;
+			tr.pinput.focus();
 		}
 	}
 	
