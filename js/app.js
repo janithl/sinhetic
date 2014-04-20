@@ -2,6 +2,29 @@
  * Transliterator app to convert Latin script phonetic Sinhala to Unicode Sinhala
  * https://github.com/janithl/sinhetic
  * 19/04/2014
+ * 
+ * The MIT License (MIT)
+ * 
+ * Copyright (c) 2014 Janith Leanage
+ * 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ * 
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ * 
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ * THE SOFTWARE.
+ * 
  */
 
 var tr = {
@@ -10,8 +33,10 @@ var tr = {
 	dict		: null,
 	deletebtn	: null,
 	output		: null,
+
 	editing		: null,
 	wordlist	: [],
+	customdict	: [],
 	
 	create: function() {
 		tr.trans		= document.getElementById("translation");
@@ -19,6 +44,11 @@ var tr = {
 		tr.dict			= document.getElementById("dictionary");
 		tr.deletebtn	= document.getElementById("deletebtn");
 		tr.output		= document.getElementById("output");
+		
+		/** get user dictionary of words */
+		if(window.localStorage.customdict != null) {
+			tr.customdict = window.localStorage.customdict.split(',');
+		}
 	},
 	
 	engToSin: function(e) {
@@ -41,7 +71,8 @@ var tr = {
 			
 			/** async dictionary lookup */
 			setTimeout(function() {
-				var matches = _.filter(SinhalaDict, function(elem) {
+				/** custom dictionary + standard dictionary */
+				var matches = _.filter(tr.customdict.concat(SinhalaDict), function(elem) {
 					return regexp.test(elem);
 				});
 				
@@ -98,6 +129,11 @@ var tr = {
 		tr.trans.style.display	= 'none';
 		tr.output.focus();
 		tr.output.select();
+		
+		/** async save user dictionary */
+		setTimeout(function() {
+			window.localStorage.customdict = _.uniq(tr.customdict.concat(_.pluck(tr.wordlist, 'si'))).join(',');
+		}, 0);
 	},
 	
 	hideOutput: function() {
