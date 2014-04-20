@@ -11,15 +11,17 @@
     <link rel="stylesheet" href="ratchet/css/ratchet.min.css">
     <link rel="stylesheet" href="ratchet/css/ratchet-theme-ios.min.css">
     <style>	
+    #content {
+		padding: 10px;
+	}
+	
     #translation {
-		min-height: 71px;
-		padding: 5px;
+		min-height: 61px;
 		margin: 0 0 20px;
 	}
 	
 	#dictionary {
-		height: 52px;
-		margin: 0 5px;
+		height: 42px;
 		padding: 5px 0;
 		border-top: 1px solid #ddd;
 		overflow: hidden;
@@ -27,7 +29,7 @@
 	
 	.word {
 		display: inline-block;
-		margin: 5px;
+		margin: 0 5px 5px 0;
 		padding: 5px;
 		background: #ddd;
 		color: #111;
@@ -55,34 +57,38 @@
 		wordlist	: [],
 		
 		create: function() {
-			tr.content	= document.getElementById("content");
+			tr.trans	= document.getElementById("translation");
 			tr.pinput	= document.getElementById("pinput");
 			tr.dict		= document.getElementById("dictionary");
 		},
 		
 		engToSin: function(e) {
+			/** 
+				if an enter key or the space bar has been pressed, add word
+				to wordlist. If multiple words have been entered, enter just the 
+				first word into wordlist 
+			*/
 			if((e.keyCode == 13 || e.keyCode == 32 || _.last(tr.pinput.value) == ' ') && tr.pinput.value.replace(/\s/g, '') != '') {
 				var words = tr.pinput.value.split(' ');
-				tr.wordlist.push({ lat: words[0], si: Sinhala.fromLatin(words[0]) });
-				tr.pinput.value = (words.length > 1) ? words[1] : '';
-
-				tr.content.scrollTop = tr.content.scrollHeight;
-				tr.renderWordList();
+				tr.addWord(Sinhala.fromLatin(words[0]), words[0]);
+				tr.pinput.value = (words.length > 1) ? words.slice(1).join(' ') : '';
 			}
 			
+			/** translate latin input into sinhala unicode output */
 			if(tr.pinput.value.replace(/\s/g, '') != '') {
 				var s = Sinhala.fromLatin(tr.pinput.value);
 				tr.dict.innerHTML	= '<div class="word activeword">' + s + '</div>';
 				var regexp			= new RegExp(s, 'i'); 
 				
-				/* Async this */
+				/** async dictionary lookup */
 				setTimeout(function() {
 					var matches = _.filter(SinhalaDict, function(elem) {
 						return regexp.test(elem);
 					});
 					
+					/** display matches. slice just 9 elements out of the array for speed */
 					if(matches.length > 0) {
-						tr.dict.innerHTML += '<div class="word" onclick="tr.addWord(this)">' + matches.join('</div><div class="word" onclick="tr.addWord(this)">') + '</div>';
+						tr.dict.innerHTML += '<div class="word" onclick="tr.addWord(this.innerHTML)">' + matches.slice(0,9).join('</div><div class="word" onclick="tr.addWord(this.innerHTML)">') + '</div>';
 					}
 				}, 0);
 			}
@@ -91,41 +97,80 @@
 			}
 		},
 		
-		renderWordList: function() {
-			document.getElementById('translation').innerHTML = '<div class="word">' + _.pluck(tr.wordlist, 'si').join('</div><div class="word">') + '</div>';
-		},
-		
-		addWord: function(element) {
-			tr.wordlist.push({ lat: Sinhala.toLatin(element.innerHTML), si: element.innerHTML });
-			tr.renderWordList();
+		addWord: function(si, lat) {
+			/** get latin reverse-translation if there is no latin text */
+			if(lat == null) {
+				lat = Sinhala.toLatin(si);
+			}
+			
+			/** add word to wordlist, empty out input and dictionary lookup */
+			tr.trans.innerHTML += '<div onclick="tr.editWord(' + tr.wordlist.length + ')" class="word">' + si + '</div>';
+			tr.wordlist.push({ lat: lat, si: si });
 			
 			tr.dict.innerHTML	= '';
 			tr.pinput.value		= '';
 			tr.pinput.focus();
 		},
 		
+		renderWordList: function() {
+			/** when the whole wordlist needs to be re-rendered */
+			var output = '';
+			for(var i = 0; i < tr.wordlist.length; i++) {
+				output += '<div onclick="tr.editWord(' + i + ')" class="word">' + tr.wordlist[i].si + '</div>';
+			}
+			tr.trans.innerHTML = output;
+		},
+
 		copyText: function() {
 			//window.plugins.copy(tr.wordlist.join(' '));
 			alert('Text Copied to Clipboard: ' + _.pluck(tr.wordlist, 'si').join(' ')); // change to toast
+		},
+		
+		clearWords: function() {
+			if(navigator.notification) {
+				navigator.notification.confirm(
+					'Are you sure you want to clear all text?', 
+					tr.onClearConfirm, 'Clear All Text', 'Yes,Cancel');
+			}
+			else {
+				var clear = window.confirm('Are you sure you want to clear all text?');
+				if(clear) { tr.onClearConfirm(1); }
+			}
+		},
+		
+		onClearConfirm: function(index) {
+			if(index == 1) {
+				tr.wordlist			= [];
+				tr.trans.innerHTML	= '';
+			}
 		}
 	}
 	
 	document.addEventListener("deviceready", tr.create, false);
-    </script>
-  </head>
-  <body onload="tr.create()">
-    <header class="bar bar-nav">
-      <a class="icon icon-share pull-right" onclick="tr.copyText()"></a>
-      <h1 class="title">Sinhetic</h1>
-    </header>
-    
-    <div id="bottom-bar" class="bar bar-footer">
-		<div id="dictionary"></div>
-		<input id="pinput" type="text" placeholder="Type Here" onkeyup="tr.engToSin(event)" autofocus>
-	</div>
-	
-    <div class="content" id="content">
+	</script>
+</head>
+<body onload="tr.create()">	
+	<div class="content" id="content">
 		<div id="translation"></div>
+		
+		<div id="dictionary"></div>
+		
+		<input id="pinput" type="text" placeholder="Type Something..." onkeyup="tr.engToSin(event)"  autocorrect="off" autocapitalize="off" autofocus>
 	</div>
-  </body>
+
+	<nav class="bar bar-tab">
+		<a class="tab-item" onclick="tr.clearWords()">
+			<span class="icon icon-close"></span>
+			<span class="tab-label">Clear</span>
+		</a>
+		<a class="tab-item" href="#">
+			<span class="icon icon-search"></span>
+			<span class="tab-label">Search</span>
+		</a>
+		<a class="tab-item" onclick="tr.copyText()">
+			<span class="icon icon-share"></span>
+			<span class="tab-label">Share</span>
+		</a>
+	</nav>
+</body>
 </html>
