@@ -123,9 +123,9 @@ var Sinhala	= {
 	},
 	
 	toLatin: function(word) {
-/*
+
 		// special consonants
-		_.each(Sinhala.specialCon, function(ch) { word = word.replace(ch.si, ch.lat); });
+		_.each(Sinhala.specialCon, function(ch) { word = word.replace(new RegExp(ch.si, 'g'), ch.lat); });
 		
 		// consonants + special chars
 		_.each(Sinhala.special, function(ch1) { 
@@ -140,14 +140,6 @@ var Sinhala	= {
 				word = word.replace(new RegExp(ch1.si + '්‍ර' + ch2.si, 'g'), ch1.lat + 'r' + ch2.lat);
 			});
 		}); 
-
-		
-
-		
-		
-		
-		
-		*/
 		
 		word = word.split('');
 		
@@ -193,36 +185,7 @@ var Sinhala	= {
 			word = word.replace(new RegExp(ch.si, 'g'), ch.lat);
 		});
 		
-		console.log(word);
-		
-		/*
-		
-		_.each(Sinhala.consonants, function(ch1) { 
-			_.each(Sinhala.vowels, function(ch2) { 
-				word = word.replace(new RegExp(ch1.si + ch2.mod, 'g'), ch1.lat + ch2.lat);
-			}); 
-		});
-		
-		console.log(word);
-		
-		word = word.split('');
-		_.each(Sinhala.consonants, function(ch) { 
-			for(var i = 0; i < word.length; i++) {
-				if(ch.si == word[i]) { word[i] = ch.lat; }
-				else if('්' == word[i]) { word[i] = ''; }
-			}
-		});
-		
-		console.log(word);
-		
-		_.each(Sinhala.vowels, function(ch) { 
-			for(var i = 0; i < word.length; i++) {
-				if(ch.si == word[i] || ch.mod == word[i]) { word[i] = ch.lat; }
-			}
-		});
-		
-		console.log(word); */
-				
-		return word;
+		// strip out any stragglers	
+		return word.replace(/[\u0D80-\u0DFF]/ig, '');
 	}		
 };

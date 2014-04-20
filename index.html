@@ -51,11 +51,13 @@
 	var tr = {
 		content		: null,
 		pinput		: null,
+		dict		: null,
 		wordlist	: [],
 		
 		create: function() {
 			tr.content	= document.getElementById("content");
 			tr.pinput	= document.getElementById("pinput");
+			tr.dict		= document.getElementById("dictionary");
 		},
 		
 		engToSin: function(e) {
@@ -70,19 +72,22 @@
 			
 			if(tr.pinput.value.replace(/\s/g, '') != '') {
 				var s = Sinhala.fromLatin(tr.pinput.value);
-				document.getElementById('dictionary').innerHTML = '<div class="word activeword">' + s + '</div>';
-				var regexp = new RegExp(s, 'i'); 
+				tr.dict.innerHTML	= '<div class="word activeword">' + s + '</div>';
+				var regexp			= new RegExp(s, 'i'); 
 				
-				var matches = _.filter(SinhalaDict, function(elem) {
-					return regexp.test(elem);
-				});
-				
-				if(matches.length > 0) {
-					document.getElementById('dictionary').innerHTML += '<div class="word" onclick="tr.addWord(this)">' + matches.join('</div><div class="word" onclick="tr.addWord(this)">') + '</div>';
-				}
+				/* Async this */
+				setTimeout(function() {
+					var matches = _.filter(SinhalaDict, function(elem) {
+						return regexp.test(elem);
+					});
+					
+					if(matches.length > 0) {
+						tr.dict.innerHTML += '<div class="word" onclick="tr.addWord(this)">' + matches.join('</div><div class="word" onclick="tr.addWord(this)">') + '</div>';
+					}
+				}, 0);
 			}
 			else {
-				document.getElementById('dictionary').innerHTML = '';
+				tr.dict.innerHTML = '';
 			}
 		},
 		
@@ -94,8 +99,9 @@
 			tr.wordlist.push({ lat: Sinhala.toLatin(element.innerHTML), si: element.innerHTML });
 			tr.renderWordList();
 			
-			tr.pinput.value = '';
-			document.getElementById('dictionary').innerHTML = '';
+			tr.dict.innerHTML	= '';
+			tr.pinput.value		= '';
+			tr.pinput.focus();
 		},
 		
 		copyText: function() {
@@ -115,7 +121,7 @@
     
     <div id="bottom-bar" class="bar bar-footer">
 		<div id="dictionary"></div>
-		<input id="pinput" type="text" placeholder="Type Here" onkeyup="tr.engToSin(event)">
+		<input id="pinput" type="text" placeholder="Type Here" onkeyup="tr.engToSin(event)" autofocus>
 	</div>
 	
     <div class="content" id="content">
