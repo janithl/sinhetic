@@ -1,3 +1,10 @@
+/**
+ * Sinhala transliterator class 
+ * Based on the UCSC Real Time Unicode Converter 
+ * http://www.ucsc.cmb.ac.lk/ltrl/services/feconverter/t1.html
+ * 19/04/2014
+ */
+
 var Sinhala	= {
 	vowels: 	[	{ si: 'ඌ',	lat: 'oo',		mod: 'ූ'	}, 
 					{ si: 'ඕ',	lat: 'o\\)',	mod: 'ෝ'	}, 
