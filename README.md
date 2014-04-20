@@ -9,6 +9,11 @@ and uses the [Sinhala Spell Dictionary for OpenOffice.org 3.0](https://github.co
 
 Version: 1.0 - Released: 20 April, 2014
 
+## Demo
+
+I have a rather [shady demo](https://dl.dropboxusercontent.com/s/tvqzqstlvp67ngs/sinhetic.html) running off 
+my Dropbox. I hope to release this as a Cordova app on the Play Store soon.
+
 ## License
 
 Sinhetic is released under the [MIT License](http://opensource.org/licenses/MIT).
