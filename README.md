@@ -20,7 +20,12 @@ has [a great guide.](http://blog.malinthe.com/2014/04/how-to-get-perfect-sinhala
 ## Demo
 
 I have a rather [shady demo](https://dl.dropboxusercontent.com/s/tvqzqstlvp67ngs/sinhetic.html) running off 
-my Dropbox. I hope to release this as a Cordova app on the Play Store soon.
+my Dropbox. 
+
+## Google Play
+
+The code has been wrapped in a simple Cordova app and put on Google Play 
+as a [free Android app](https://play.google.com/store/apps/details?id=org.yamu.sinhetic)
 
 ## License
 
