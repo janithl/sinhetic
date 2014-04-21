@@ -153,7 +153,7 @@ var tr = {
 	editWord: function(index) {
 		/** edit a word already in the wordlist */
 		tr.editing 					= index;
-		tr.dict.innerHTML			= tr.wordlist[index].si;
+		tr.dict.innerHTML			= '<div class="word activeword">' + tr.wordlist[index].si + '</div>';;
 		tr.pinput.value				= tr.wordlist[index].lat;
 		tr.deletebtn.style.display	= 'block';
 		tr.pinput.focus();

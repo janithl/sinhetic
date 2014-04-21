@@ -10,13 +10,14 @@
     <link rel="stylesheet" href="ratchet/css/ratchet.min.css">
     <link rel="stylesheet" href="ratchet/css/ratchet-theme-ios.min.css">
     <style>	
-    #content 		{ padding: 10px; }
-    #translation 	{ min-height: 61px;	margin: 0 0 20px; }
-	#dictionary 	{ height: 42px;	padding: 5px 0;	border-top: 1px solid #ddd;	overflow: hidden; }
+    #translation 	{ margin: 10px; }
+    #output			{ display: none; width: 90%; margin: 10px auto; }
+    
+    #bar-bottom		{ padding: 0 10px; }
+	#dictionary 	{ height: 40px;	padding: 5px 0; margin: 5px 0; overflow: hidden; }
 	.word 			{ display: inline-block; margin: 0 5px 5px 0; padding: 5px;	background: #ddd; color: #111; }
 	.activeword		{ background: #aaa; }
-	#deletebtn		{ display: none; margin: 5px 0 0 5px; float: right; }
-	#output			{ display: none; }
+	#deletebtn		{ display: none; float: right; }
     </style>
     
     <script type="text/javascript" src="cordova.js"></script>
@@ -27,23 +28,28 @@
     <script type="text/javascript" src="js/app.js"></script>
 </head>
 <body onload="tr.create()">	
+
+	<header class="bar bar-nav">
+		<button class="btn btn-link btn-nav pull-left" onclick="tr.clearWords()">
+			<span class="icon icon-close"></span>
+			Clear Text
+		</button>
+		<button class="btn btn-link btn-nav pull-right" onclick="tr.copyText()">
+			<span class="icon icon-share"></span>
+			Copy Text
+		</button>
+		<h1 class="title"></h1>
+	</header>
+
 	<div class="content" id="content">
 		<div 		id="translation"></div>
 		<textarea 	id="output" onblur="tr.hideOutput()"></textarea>
+	</div>
+	
+	<nav id="bar-bottom" class="bar bar-tab">
 		<button 	id="deletebtn" class="btn btn-negative" onclick="tr.deleteWord()"><span class="icon icon-trash"></span></button>
 		<div 		id="dictionary"></div>
 		<input 		id="pinput" type="text" placeholder="Type Something..." onkeyup="tr.engToSin(event)"  autocorrect="off" autocapitalize="off" autofocus>
-	</div>
-
-	<nav class="bar bar-tab">
-		<a class="tab-item" onclick="tr.clearWords()">
-			<span class="icon icon-close"></span>
-			<span class="tab-label">Clear Text</span>
-		</a>
-		<a class="tab-item" onclick="tr.copyText()">
-			<span class="icon icon-share"></span>
-			<span class="tab-label">Copy Text</span>
-		</a>
 	</nav>
 </body>
 </html>
