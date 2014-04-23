@@ -132,7 +132,8 @@ var tr = {
 		
 		/** async save user dictionary */
 		setTimeout(function() {
-			window.localStorage.customdict = _.uniq(tr.customdict.concat(_.pluck(tr.wordlist, 'si'))).join(',');
+			tr.customdict = _.uniq(tr.customdict.concat(_.pluck(tr.wordlist, 'si')));
+			window.localStorage.customdict = tr.customdict.join(',');
 		}, 0);
 	},
 	
