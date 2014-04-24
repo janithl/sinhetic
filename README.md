@@ -15,17 +15,19 @@ Sorry, but you need to have Sinhala installed on your phone for this app to work
 unsuccessfully to create a workaround using web fonts, but to no avail.
 
 iOS devices already have Sinhala. If you're on Android, [Malinthe](https://twitter.com/malinthe) 
-has [a great guide.](http://blog.malinthe.com/2014/04/how-to-get-perfect-sinhala-text-on-android-4-4-kitkat/)
+has [a great guide](http://blog.malinthe.com/2014/04/how-to-get-perfect-sinhala-text-on-android-4-4-kitkat/).
 
 ## Demo
 
-I have a rather [shady demo](https://dl.dropboxusercontent.com/s/tvqzqstlvp67ngs/sinhetic.html) running off 
-my Dropbox. 
+~~I have a rather shady demo running off my Dropbox~~
+
+The demo is at [janithl.github.io/sinhetic/](http://janithl.github.io/sinhetic/).
+
 
 ## Google Play
 
 The code has been wrapped in a simple Cordova app and put on Google Play 
-as a [free Android app](https://play.google.com/store/apps/details?id=org.yamu.sinhetic)
+as a [free Android app](https://play.google.com/store/apps/details?id=org.yamu.sinhetic).
 
 ## License
 
