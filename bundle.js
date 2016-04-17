@@ -63,11 +63,11 @@ var Sinhetic = React.createClass({
 	getInitialState: function getInitialState() {
 		return {
 			wordlist: [],
-			customdict: [],
+			customdict: [], // TODO: implement the custom dictionary
+			autosug: [],
 			editing: null,
 			curlatext: '',
-			cursitext: '',
-			autosug: []
+			cursitext: ''
 		};
 	},
 
@@ -115,6 +115,10 @@ var Sinhetic = React.createClass({
 
 	handleDelete: function handleDelete(event) {
 		this.editWordlist('delete');
+	},
+
+	handleClear: function handleClear(event) {
+		this.setState(this.getInitialState);
 	},
 
 	handleSubmit: function handleSubmit(event) {
@@ -168,6 +172,11 @@ var Sinhetic = React.createClass({
 		return React.createElement(
 			'div',
 			null,
+			React.createElement(
+				'button',
+				{ onClick: this.handleClear },
+				'Clear All'
+			),
 			React.createElement(
 				'ul',
 				null,
