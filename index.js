@@ -46,7 +46,7 @@ var Word = React.createClass({
 		this.props.onSelect(this.props.nodeid);
 	},
 	render: function() {
-		return <li onClick={this.select}>{this.props.word.si}</li>
+		return <li onClick={this.select}>{this.props.text}</li>
 	}
 });
 
@@ -60,6 +60,15 @@ var Sinhetic = React.createClass({
 			cursitext : '',
 			autosug   : [],
 		};
+	},
+
+	selectSuggestion: function(nodeid) {
+		this.setState({
+			curlatext 	: sinhala.toLatin(this.state.autosug[nodeid]),
+			cursitext 	: this.state.autosug[nodeid]
+		});
+
+		setTimeout(this.handleSubmit, 50);
 	},
 
 	editWord: function(nodeid) {
@@ -145,7 +154,7 @@ var Sinhetic = React.createClass({
 				<ul>
 				{
 					this.state.wordlist.map(function(w, index) {
-						return <Word key={index} nodeid={index} word={w} onSelect={_self.editWord} />;
+						return <Word key={index} nodeid={index} text={w.si} onSelect={_self.editWord} />;
 					})
 				}
 				</ul>
@@ -153,7 +162,7 @@ var Sinhetic = React.createClass({
 					<li>{ this.state.cursitext }</li>
 					{
 						this.state.autosug.map(function(w, index) {
-							return <li key={index}>{w}</li>;
+							return <Word key={index} nodeid={index} text={w} onSelect={_self.selectSuggestion} />;
 						})
 					}
 				</ul>

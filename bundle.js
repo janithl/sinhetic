@@ -52,7 +52,7 @@ var Word = React.createClass({
 		return React.createElement(
 			'li',
 			{ onClick: this.select },
-			this.props.word.si
+			this.props.text
 		);
 	}
 });
@@ -69,6 +69,15 @@ var Sinhetic = React.createClass({
 			cursitext: '',
 			autosug: []
 		};
+	},
+
+	selectSuggestion: function selectSuggestion(nodeid) {
+		this.setState({
+			curlatext: sinhala.toLatin(this.state.autosug[nodeid]),
+			cursitext: this.state.autosug[nodeid]
+		});
+
+		setTimeout(this.handleSubmit, 50);
 	},
 
 	editWord: function editWord(nodeid) {
@@ -163,7 +172,7 @@ var Sinhetic = React.createClass({
 				'ul',
 				null,
 				this.state.wordlist.map(function (w, index) {
-					return React.createElement(Word, { key: index, nodeid: index, word: w, onSelect: _self.editWord });
+					return React.createElement(Word, { key: index, nodeid: index, text: w.si, onSelect: _self.editWord });
 				})
 			),
 			React.createElement(
@@ -175,11 +184,7 @@ var Sinhetic = React.createClass({
 					this.state.cursitext
 				),
 				this.state.autosug.map(function (w, index) {
-					return React.createElement(
-						'li',
-						{ key: index },
-						w
-					);
+					return React.createElement(Word, { key: index, nodeid: index, text: w, onSelect: _self.selectSuggestion });
 				})
 			),
 			React.createElement('input', {
