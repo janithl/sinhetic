@@ -82,6 +82,7 @@ var Sinhetic = React.createClass({
 				wordlist[this.state.editing] = word;
 				break;
 			case 'delete':
+				wordlist.splice(this.state.editing, 1);
 				break;
 		}
 
@@ -92,6 +93,10 @@ var Sinhetic = React.createClass({
 			autosug 	: [],
 			editing 	: null
 		});
+	},
+
+	handleDelete: function (event) {
+		this.editWordlist('delete');
 	},
 
 	handleSubmit: function (event) {
@@ -134,6 +139,7 @@ var Sinhetic = React.createClass({
 
 	render: function () {
 		var _self = this;
+		var deleteButton = this.state.editing ? <button onClick={this.handleDelete}>Delete</button> : null;
 		return (
 			<div>
 				<ul>
@@ -156,6 +162,8 @@ var Sinhetic = React.createClass({
 						value={this.state.curlatext}
 						onChange={this.handleChange}
 						onKeyDown={this.handleKeyDown}/>
+
+				{deleteButton}
 			</div>
 		);
 	}
