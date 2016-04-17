@@ -81,24 +81,37 @@ var Sinhetic = React.createClass({
 		this.autosuggest(this.state.wordlist[nodeid].si);
 	},
 
+	editWordlist: function editWordlist(action, word) {
+		var wordlist = this.state.wordlist;
+		switch (action) {
+			case 'append':
+				wordlist = wordlist.concat(word);
+				break;
+			case 'edit':
+				wordlist[this.state.editing] = word;
+				break;
+			case 'delete':
+				break;
+		}
+
+		this.setState({
+			wordlist: wordlist,
+			curlatext: '',
+			cursitext: '',
+			autosug: [],
+			editing: null
+		});
+	},
+
 	handleSubmit: function handleSubmit(event) {
 		var val = this.state.curlatext.trim();
 		if (val) {
 			var word = { 'la': this.state.curlatext.trim(), 'si': this.state.cursitext.trim() };
-			var wordlist = this.state.wordlist;
 			if (this.state.editing) {
-				wordlist[this.state.editing] = word;
+				this.editWordlist('edit', word);
 			} else {
-				wordlist = wordlist.concat(word);
+				this.editWordlist('append', word);
 			}
-
-			this.setState({
-				wordlist: wordlist,
-				curlatext: '',
-				cursitext: '',
-				autosug: [],
-				editing: null
-			});
 		}
 	},
 
