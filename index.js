@@ -41,82 +41,114 @@ var SinhalaDict = require('./js/sinhaladict');
 var Sinhala     = require('./js/sinhala');
 var sinhala     = new Sinhala();
 
+var Word = React.createClass({
+	select: function(event) {
+		this.props.onSelect(this.props.nodeid);
+	},
+	render: function() {
+		return <li onClick={this.select}>{this.props.word.si}</li>
+	}
+});
+
 var Sinhetic = React.createClass({
-  getInitialState: function () {
-    return { 
-      wordlist  : [], 
-      customdict: [], 
-      editing   : null,
-      curlatext : '',
-      cursitext : '',
-      autosug   : [],
-    };
-  },
+	getInitialState: function () {
+		return { 
+			wordlist  : [], 
+			customdict: [], 
+			editing   : null,
+			curlatext : '',
+			cursitext : '',
+			autosug   : [],
+		};
+	},
 
-  handleSubmit: function (event) {
-    var val = this.state.curlatext.trim();
-    if (val) {
-      this.setState({
-        wordlist: this.state.wordlist.concat({ 'la': this.state.curlatext.trim(), 'si': this.state.cursitext.trim() }),
-        curlatext : '',
-        cursitext : '',
-        autosug   : []
-      });
-    }
-  },
+	editWord: function(nodeid) {
+		this.setState({
+			editing		: nodeid,
+			curlatext 	: this.state.wordlist[nodeid].la,
+			cursitext 	: this.state.wordlist[nodeid].si,
+		});
 
-  handleKeyDown: function (event) {
-    if (event.which === ESCAPE_KEY) {
-      this.setState({ curlatext: '', cursitext: '', autosug: [] });
-    } else if (event.which === ENTER_KEY || event.which === SPACE_BAR) {
-      this.handleSubmit(event);
-    }
-  },
+		this.autosuggest(this.state.wordlist[nodeid].si);
+	},
 
-  handleChange: function (event) {
-    var sitext = sinhala.fromLatin(event.target.value).trim();
-    this.setState({
-      cursitext : sitext,
-      curlatext : event.target.value,
-    });
+	handleSubmit: function (event) {
+		var val = this.state.curlatext.trim();
+		if (val) {
+			var word = { 'la': this.state.curlatext.trim(), 'si': this.state.cursitext.trim() };
+			var wordlist = this.state.wordlist;
+			if(this.state.editing) {
+				wordlist[this.state.editing] = word;
+			}
+			else {
+				wordlist = wordlist.concat(word);
+			}
 
-    if (sitext) {
-      var regexp = new RegExp(sitext, 'i'); 
-      this.setState({
-        autosug   : _.filter(SinhalaDict, function(elem) { return regexp.test(elem); }).slice(0,5)
-      });
-    }
-  },
+			this.setState({
+				wordlist	: wordlist,
+				curlatext	: '',
+				cursitext	: '',
+				autosug 	: [],
+				editing 	: null
+			});
+		}
+	},
 
-  render: function () {
-    return (
-      <div>
-        <ul>
-        {
-          this.state.wordlist.map(function(w) {
-            return <li>{w.si}</li>;
-          })
-        }
-        </ul>
-        <ul>
-          <li>{ this.state.cursitext }</li>
-          {
-            this.state.autosug.map(function(w) {
-              return <li>{w}</li>;
-            })
-          }
-        </ul>
-        <input
-            ref="entertext"
-            value={this.state.curlatext}
-            onChange={this.handleChange}
-            onKeyDown={this.handleKeyDown}/>
-      </div>
-    );
-  }
+	handleKeyDown: function (event) {
+		if (event.which === ESCAPE_KEY) {
+			this.setState({ curlatext: '', cursitext: '', autosug: [], editing: null });
+		} else if (event.which === ENTER_KEY || event.which === SPACE_BAR) {
+			this.handleSubmit(event);
+		}
+	},
+
+	handleChange: function (event) {
+		var sitext = sinhala.fromLatin(event.target.value).trim();
+		this.setState({
+			cursitext : sitext,
+			curlatext : event.target.value,
+		});
+
+		if (sitext) { this.autosuggest(sitext); }
+	},
+
+	autosuggest: function(text) {
+		var regexp = new RegExp(text, 'i'); 
+		this.setState({
+			autosug   : _.filter(SinhalaDict, function(elem) { return regexp.test(elem); }).slice(0,5)
+		});
+	},
+
+	render: function () {
+		var _self = this;
+		return (
+			<div>
+				<ul>
+				{
+					this.state.wordlist.map(function(w, index) {
+						return <Word key={index} nodeid={index} word={w} onSelect={_self.editWord} />;
+					})
+				}
+				</ul>
+				<ul>
+					<li>{ this.state.cursitext }</li>
+					{
+						this.state.autosug.map(function(w, index) {
+							return <li key={index}>{w}</li>;
+						})
+					}
+				</ul>
+				<input
+						ref="entertext"
+						value={this.state.curlatext}
+						onChange={this.handleChange}
+						onKeyDown={this.handleKeyDown}/>
+			</div>
+		);
+	}
 });
 
 ReactDOM.render(
-  <Sinhetic />,
-  document.getElementById('container')
+	<Sinhetic />,
+	document.getElementById('container')
 );

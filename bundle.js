@@ -42,95 +42,130 @@ var SinhalaDict = require('./js/sinhaladict');
 var Sinhala = require('./js/sinhala');
 var sinhala = new Sinhala();
 
+var Word = React.createClass({
+	displayName: 'Word',
+
+	select: function select(event) {
+		this.props.onSelect(this.props.nodeid);
+	},
+	render: function render() {
+		return React.createElement(
+			'li',
+			{ onClick: this.select },
+			this.props.word.si
+		);
+	}
+});
+
 var Sinhetic = React.createClass({
-  displayName: 'Sinhetic',
+	displayName: 'Sinhetic',
 
-  getInitialState: function getInitialState() {
-    return {
-      wordlist: [],
-      customdict: [],
-      editing: null,
-      curlatext: '',
-      cursitext: '',
-      autosug: []
-    };
-  },
+	getInitialState: function getInitialState() {
+		return {
+			wordlist: [],
+			customdict: [],
+			editing: null,
+			curlatext: '',
+			cursitext: '',
+			autosug: []
+		};
+	},
 
-  handleSubmit: function handleSubmit(event) {
-    var val = this.state.curlatext.trim();
-    if (val) {
-      this.setState({
-        wordlist: this.state.wordlist.concat({ 'la': this.state.curlatext.trim(), 'si': this.state.cursitext.trim() }),
-        curlatext: '',
-        cursitext: '',
-        autosug: []
-      });
-    }
-  },
+	editWord: function editWord(nodeid) {
+		this.setState({
+			editing: nodeid,
+			curlatext: this.state.wordlist[nodeid].la,
+			cursitext: this.state.wordlist[nodeid].si
+		});
 
-  handleKeyDown: function handleKeyDown(event) {
-    if (event.which === ESCAPE_KEY) {
-      this.setState({ curlatext: '', cursitext: '', autosug: [] });
-    } else if (event.which === ENTER_KEY || event.which === SPACE_BAR) {
-      this.handleSubmit(event);
-    }
-  },
+		this.autosuggest(this.state.wordlist[nodeid].si);
+	},
 
-  handleChange: function handleChange(event) {
-    var sitext = sinhala.fromLatin(event.target.value).trim();
-    this.setState({
-      cursitext: sitext,
-      curlatext: event.target.value
-    });
+	handleSubmit: function handleSubmit(event) {
+		var val = this.state.curlatext.trim();
+		if (val) {
+			var word = { 'la': this.state.curlatext.trim(), 'si': this.state.cursitext.trim() };
+			var wordlist = this.state.wordlist;
+			if (this.state.editing) {
+				wordlist[this.state.editing] = word;
+			} else {
+				wordlist = wordlist.concat(word);
+			}
 
-    if (sitext) {
-      var regexp = new RegExp(sitext, 'i');
-      this.setState({
-        autosug: _.filter(SinhalaDict, function (elem) {
-          return regexp.test(elem);
-        }).slice(0, 5)
-      });
-    }
-  },
+			this.setState({
+				wordlist: wordlist,
+				curlatext: '',
+				cursitext: '',
+				autosug: [],
+				editing: null
+			});
+		}
+	},
 
-  render: function render() {
-    return React.createElement(
-      'div',
-      null,
-      React.createElement(
-        'ul',
-        null,
-        this.state.wordlist.map(function (w) {
-          return React.createElement(
-            'li',
-            null,
-            w.si
-          );
-        })
-      ),
-      React.createElement(
-        'ul',
-        null,
-        React.createElement(
-          'li',
-          null,
-          this.state.cursitext
-        ),
-        this.state.autosug.map(function (w) {
-          return React.createElement(
-            'li',
-            null,
-            w
-          );
-        })
-      ),
-      React.createElement('input', {
-        ref: 'entertext',
-        value: this.state.curlatext,
-        onChange: this.handleChange,
-        onKeyDown: this.handleKeyDown })
-    );
-  }
+	handleKeyDown: function handleKeyDown(event) {
+		if (event.which === ESCAPE_KEY) {
+			this.setState({ curlatext: '', cursitext: '', autosug: [], editing: null });
+		} else if (event.which === ENTER_KEY || event.which === SPACE_BAR) {
+			this.handleSubmit(event);
+		}
+	},
+
+	handleChange: function handleChange(event) {
+		var sitext = sinhala.fromLatin(event.target.value).trim();
+		this.setState({
+			cursitext: sitext,
+			curlatext: event.target.value
+		});
+
+		if (sitext) {
+			this.autosuggest(sitext);
+		}
+	},
+
+	autosuggest: function autosuggest(text) {
+		var regexp = new RegExp(text, 'i');
+		this.setState({
+			autosug: _.filter(SinhalaDict, function (elem) {
+				return regexp.test(elem);
+			}).slice(0, 5)
+		});
+	},
+
+	render: function render() {
+		var _self = this;
+		return React.createElement(
+			'div',
+			null,
+			React.createElement(
+				'ul',
+				null,
+				this.state.wordlist.map(function (w, index) {
+					return React.createElement(Word, { key: index, nodeid: index, word: w, onSelect: _self.editWord });
+				})
+			),
+			React.createElement(
+				'ul',
+				null,
+				React.createElement(
+					'li',
+					null,
+					this.state.cursitext
+				),
+				this.state.autosug.map(function (w, index) {
+					return React.createElement(
+						'li',
+						{ key: index },
+						w
+					);
+				})
+			),
+			React.createElement('input', {
+				ref: 'entertext',
+				value: this.state.curlatext,
+				onChange: this.handleChange,
+				onKeyDown: this.handleKeyDown })
+		);
+	}
 });
 
 ReactDOM.render(React.createElement(Sinhetic, null), document.getElementById('container'));
