@@ -1,6 +1,10 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 'use strict';
 
+var ESCAPE_KEY = 27;
+var ENTER_KEY = 13;
+var SPACE_BAR = 32;
+
 var React = require('react');
 var ReactDOM = require('react-dom');
 
@@ -11,14 +15,33 @@ var Sinhetic = React.createClass({
     return {
       wordlist: [],
       customdict: [],
-      editing: null
+      editing: null,
+      curtext: ''
     };
   },
-  handleClick: function handleClick() {
-    this.setState({
-      wordlist: this.state.wordlist.concat('word')
-    });
+
+  handleSubmit: function handleSubmit(event) {
+    var val = this.state.curtext.trim();
+    if (val) {
+      this.setState({
+        wordlist: this.state.wordlist.concat(val),
+        curtext: ''
+      });
+    }
   },
+
+  handleKeyDown: function handleKeyDown(event) {
+    if (event.which === ESCAPE_KEY) {
+      this.setState({ curtext: '' });
+    } else if (event.which === ENTER_KEY || event.which === SPACE_BAR) {
+      this.handleSubmit(event);
+    }
+  },
+
+  handleChange: function handleChange(event) {
+    this.setState({ curtext: event.target.value });
+  },
+
   render: function render() {
     return React.createElement(
       'div',
@@ -34,6 +57,12 @@ var Sinhetic = React.createClass({
           );
         })
       ),
+      React.createElement('input', {
+        ref: 'wordField',
+        value: this.state.curtext,
+        onBlur: this.handleSubmit,
+        onChange: this.handleChange,
+        onKeyDown: this.handleKeyDown }),
       React.createElement(
         'button',
         { onClick: this.handleClick },
