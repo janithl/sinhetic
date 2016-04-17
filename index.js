@@ -6,8 +6,10 @@ var SPACE_BAR   = 32;
 
 var React       = require('react');
 var ReactDOM    = require('react-dom');
-var Sinhala     = require('./js/sinhala');
+var _           = require('lodash');
 
+var SinhalaDict = require('./js/sinhaladict');
+var Sinhala     = require('./js/sinhala');
 var sinhala     = new Sinhala();
 
 var Sinhetic = React.createClass({
@@ -18,6 +20,7 @@ var Sinhetic = React.createClass({
       editing   : null,
       curlatext : '',
       cursitext : '',
+      autosug   : [],
     };
   },
 
@@ -26,25 +29,34 @@ var Sinhetic = React.createClass({
     if (val) {
       this.setState({
         wordlist: this.state.wordlist.concat({ 'la': this.state.curlatext.trim(), 'si': this.state.cursitext.trim() }),
-        curlatext: '',
-        cursitext: '',
+        curlatext : '',
+        cursitext : '',
+        autosug   : []
       });
     }
   },
 
   handleKeyDown: function (event) {
     if (event.which === ESCAPE_KEY) {
-      this.setState({ curlatext: '', cursitext: '' });
+      this.setState({ curlatext: '', cursitext: '', autosug: [] });
     } else if (event.which === ENTER_KEY || event.which === SPACE_BAR) {
       this.handleSubmit(event);
     }
   },
 
   handleChange: function (event) {
+    var sitext = sinhala.fromLatin(event.target.value).trim();
     this.setState({
-      cursitext: sinhala.fromLatin(event.target.value),
-      curlatext: event.target.value,
+      cursitext : sitext,
+      curlatext : event.target.value,
     });
+
+    if (sitext) {
+      var regexp = new RegExp(sitext, 'i'); 
+      this.setState({
+        autosug   : _.filter(SinhalaDict, function(elem) { return regexp.test(elem); }).slice(0,5)
+      });
+    }
   },
 
   render: function () {
@@ -59,11 +71,15 @@ var Sinhetic = React.createClass({
         </ul>
         <ul>
           <li>{ this.state.cursitext }</li>
+          {
+            this.state.autosug.map(function(w) {
+              return <li>{w}</li>;
+            })
+          }
         </ul>
         <input
             ref="entertext"
             value={this.state.curlatext}
-            onBlur={this.handleSubmit}
             onChange={this.handleChange}
             onKeyDown={this.handleKeyDown}/>
       </div>
