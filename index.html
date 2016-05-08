@@ -1,10 +1,23 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>Sinhetic</title>
-    <meta name="viewport" content="user-scalable=no,initial-scale=1,width=device-width,height=device-height,maximum-scale=1">
-</head>
+	<head>
+		<meta charset="utf-8">
+		<title>Sinhetic</title>
+		<meta name="viewport" content="user-scalable=no,initial-scale=1,width=device-width,height=device-height,maximum-scale=1">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+		<link rel="stylesheet" href="ratchet/css/ratchet.min.css">
+		<link rel="stylesheet" href="ratchet/css/ratchet-theme-ios.min.css">
+		<style>	
+		.translation 	{ margin: 10px; }
+		.bar-bottom		{ padding: 0 10px; }
+		.dictionary 	{ height: 40px;	padding: 5px 0; margin: 5px 0; overflow: hidden; }
+		.word 			{ display: inline-block; margin: 0 5px 5px 0; padding: 5px;	background: #ddd; color: #111; }
+		.activeword		{ background: #aaa; }
+		.deletebtn		{ float: right; }
+		</style>
+	</head>
 <body>
 	<div id="container"></div>
 	<script src="bundle.js"></script>

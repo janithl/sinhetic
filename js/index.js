@@ -37,8 +37,8 @@ var React       = require('react');
 var ReactDOM    = require('react-dom');
 var _           = require('lodash');
 
-var SinhalaDict = require('./js/sinhaladict');
-var Sinhala     = require('./js/sinhala');
+var SinhalaDict = require('./sinhaladict');
+var Sinhala     = require('./sinhala');
 var sinhala     = new Sinhala();
 
 var Word = React.createClass({
@@ -46,7 +46,7 @@ var Word = React.createClass({
 		this.props.onSelect(this.props.nodeid);
 	},
 	render: function() {
-		return <li onClick={this.select}>{this.props.text}</li>
+		return <div className="word" onClick={this.select}>{this.props.text}</div>
 	}
 });
 
@@ -116,7 +116,7 @@ var Sinhetic = React.createClass({
 		var val = this.state.curlatext.trim();
 		if (val) {
 			var word = { 'la': this.state.curlatext.trim(), 'si': this.state.cursitext.trim() };
-			if(this.state.editing) {
+			if(this.state.editing !== null) {
 				this.editWordlist('edit', word);
 			}
 			else {
@@ -152,32 +152,50 @@ var Sinhetic = React.createClass({
 
 	render: function () {
 		var _self = this;
-		var deleteButton = this.state.editing ? <button onClick={this.handleDelete}>Delete</button> : null;
+		var deleteButton = this.state.editing !== null ? <button className="btn btn-negative deletebtn" onClick={this.handleDelete}><span className="icon icon-trash"/></button> : null;
+		var dictionary = this.state.cursitext.length ? <div className="word">{ this.state.cursitext }</div> : null;
+
 		return (
 			<div>
-				<button onClick={this.handleClear}>Clear All</button>
-				<ul>
-				{
-					this.state.wordlist.map(function(w, index) {
-						return <Word key={index} nodeid={index} text={w.si} onSelect={_self.editWord} />;
-					})
-				}
-				</ul>
-				<ul>
-					<li>{ this.state.cursitext }</li>
+				<header className="bar bar-nav">
+					<button className="btn btn-link btn-nav pull-left" onClick={this.handleClear}>
+						<span className="icon icon-close"/>
+						Clear All
+					</button>
+					<h1 className="title"></h1>
+				</header>
+				
+				<div className="content">
+					<div className="translation">
 					{
-						this.state.autosug.map(function(w, index) {
-							return <Word key={index} nodeid={index} text={w} onSelect={_self.selectSuggestion} />;
+						this.state.wordlist.map(function(w, index) {
+							return <Word key={index} nodeid={index} text={w.si} onSelect={_self.editWord} />;
 						})
 					}
-				</ul>
-				<input
-						ref="entertext"
-						value={this.state.curlatext}
-						onChange={this.handleChange}
-						onKeyDown={this.handleKeyDown}/>
-
-				{deleteButton}
+					</div>
+				</div>
+				
+				<nav className="bar bar-tab bar-bottom">
+					{deleteButton}
+					<div className="dictionary">
+						{dictionary}
+						{
+							this.state.autosug.map(function(w, index) {
+								return <Word key={index} nodeid={index} text={w} onSelect={_self.selectSuggestion} />;
+							})
+						}
+					</div>
+					<input
+							ref="entertext"
+							type="text" 
+							placeholder="Type Something..." 
+							value={this.state.curlatext}
+							onChange={this.handleChange}
+							onKeyDown={this.handleKeyDown}
+							autocorrect="off" 
+							autocapitalize="off" 
+							autofocus/>
+				</nav>
 			</div>
 		);
 	}

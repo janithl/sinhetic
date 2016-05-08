@@ -38,8 +38,8 @@ var React = require('react');
 var ReactDOM = require('react-dom');
 var _ = require('lodash');
 
-var SinhalaDict = require('./js/sinhaladict');
-var Sinhala = require('./js/sinhala');
+var SinhalaDict = require('./sinhaladict');
+var Sinhala = require('./sinhala');
 var sinhala = new Sinhala();
 
 var Word = React.createClass({
@@ -50,8 +50,8 @@ var Word = React.createClass({
 	},
 	render: function render() {
 		return React.createElement(
-			'li',
-			{ onClick: this.select },
+			'div',
+			{ className: 'word', onClick: this.select },
 			this.props.text
 		);
 	}
@@ -125,7 +125,7 @@ var Sinhetic = React.createClass({
 		var val = this.state.curlatext.trim();
 		if (val) {
 			var word = { 'la': this.state.curlatext.trim(), 'si': this.state.cursitext.trim() };
-			if (this.state.editing) {
+			if (this.state.editing !== null) {
 				this.editWordlist('edit', word);
 			} else {
 				this.editWordlist('append', word);
@@ -164,51 +164,72 @@ var Sinhetic = React.createClass({
 
 	render: function render() {
 		var _self = this;
-		var deleteButton = this.state.editing ? React.createElement(
+		var deleteButton = this.state.editing !== null ? React.createElement(
 			'button',
-			{ onClick: this.handleDelete },
-			'Delete'
+			{ className: 'btn btn-negative deletebtn', onClick: this.handleDelete },
+			React.createElement('span', { className: 'icon icon-trash' })
 		) : null;
+		var dictionary = this.state.cursitext.length ? React.createElement(
+			'div',
+			{ className: 'word' },
+			this.state.cursitext
+		) : null;
+
 		return React.createElement(
 			'div',
 			null,
 			React.createElement(
-				'button',
-				{ onClick: this.handleClear },
-				'Clear All'
-			),
-			React.createElement(
-				'ul',
-				null,
-				this.state.wordlist.map(function (w, index) {
-					return React.createElement(Word, { key: index, nodeid: index, text: w.si, onSelect: _self.editWord });
-				})
-			),
-			React.createElement(
-				'ul',
-				null,
+				'header',
+				{ className: 'bar bar-nav' },
 				React.createElement(
-					'li',
-					null,
-					this.state.cursitext
+					'button',
+					{ className: 'btn btn-link btn-nav pull-left', onClick: this.handleClear },
+					React.createElement('span', { className: 'icon icon-close' }),
+					'Clear All'
 				),
-				this.state.autosug.map(function (w, index) {
-					return React.createElement(Word, { key: index, nodeid: index, text: w, onSelect: _self.selectSuggestion });
-				})
+				React.createElement('h1', { className: 'title' })
 			),
-			React.createElement('input', {
-				ref: 'entertext',
-				value: this.state.curlatext,
-				onChange: this.handleChange,
-				onKeyDown: this.handleKeyDown }),
-			deleteButton
+			React.createElement(
+				'div',
+				{ className: 'content' },
+				React.createElement(
+					'div',
+					{ className: 'translation' },
+					this.state.wordlist.map(function (w, index) {
+						return React.createElement(Word, { key: index, nodeid: index, text: w.si, onSelect: _self.editWord });
+					})
+				)
+			),
+			React.createElement(
+				'nav',
+				{ className: 'bar bar-tab bar-bottom' },
+				deleteButton,
+				React.createElement(
+					'div',
+					{ className: 'dictionary' },
+					dictionary,
+					this.state.autosug.map(function (w, index) {
+						return React.createElement(Word, { key: index, nodeid: index, text: w, onSelect: _self.selectSuggestion });
+					})
+				),
+				React.createElement('input', {
+					ref: 'entertext',
+					type: 'text',
+					placeholder: 'Type Something...',
+					value: this.state.curlatext,
+					onChange: this.handleChange,
+					onKeyDown: this.handleKeyDown,
+					autocorrect: 'off',
+					autocapitalize: 'off',
+					autofocus: true })
+			)
 		);
 	}
 });
 
 ReactDOM.render(React.createElement(Sinhetic, null), document.getElementById('container'));
 
-},{"./js/sinhala":2,"./js/sinhaladict":3,"lodash":4,"react":168,"react-dom":5}],2:[function(require,module,exports){
+},{"./sinhala":2,"./sinhaladict":3,"lodash":4,"react":168,"react-dom":5}],2:[function(require,module,exports){
 'use strict';
 
 /**
