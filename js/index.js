@@ -56,12 +56,24 @@ var Sinhetic = React.createClass({
 	getInitialState: function () {
 		return { 
 			wordlist  : [], 
-			customdict: [], // TODO: implement the custom dictionary
+			customdict: [],
 			autosug   : [],
 			editing   : null,
 			curlatext : '',
 			cursitext : '',
 		};
+	},
+
+	componentDidMount: function() {
+		var customdict = [];
+
+		/** load the user dictionary of words, if available */
+		if(window.localStorage.customdict != null) {
+			customdict = window.localStorage.customdict.split(',');
+		}
+
+		/** append user dictionary and standard dictionary into customdict, for autosuggest */
+		this.setState({ customdict: _.uniq(SinhalaDict.concat(customdict)) });
 	},
 
 	/** when a user clicks on a suggestion from the autosuggest list, select it as 
@@ -157,7 +169,7 @@ var Sinhetic = React.createClass({
 	autosuggest: function(text) {
 		var regexp = new RegExp(text, 'i'); 
 		this.setState({
-			autosug   : _.filter(SinhalaDict, function(elem) { return regexp.test(elem); }).slice(0,5)
+			autosug : _.filter(this.state.customdict, function(elem) { return regexp.test(elem); }).slice(0,5)
 		});
 	},
 
