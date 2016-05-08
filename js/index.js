@@ -55,25 +55,33 @@ var Word = React.createClass({
 var Sinhetic = React.createClass({
 	getInitialState: function () {
 		return { 
-			wordlist  : [], 
-			customdict: [],
-			autosug   : [],
-			editing   : null,
-			curlatext : '',
-			cursitext : '',
+			wordlist 	: [], 
+			dict 		: [],
+			autosug  	: [],
+			editing  	: null,
+			curlatext	: '',
+			cursitext	: '',
 		};
 	},
 
 	componentDidMount: function() {
-		var customdict = [];
+		var dict = SinhalaDict;
 
-		/** load the user dictionary of words, if available */
-		if(window.localStorage.customdict != null) {
-			customdict = window.localStorage.customdict.split(',');
+		/** load the expanded dictionary of words, if available */
+		if(window.localStorage.dict !== null) {
+			dict = JSON.parse(window.localStorage.dict);
 		}
 
-		/** append user dictionary and standard dictionary into customdict, for autosuggest */
-		this.setState({ customdict: _.uniq(SinhalaDict.concat(customdict)) });
+		this.setState({ dict: _.uniq(dict) });
+	
+		/** save expanded dictionary every 15 seconds */
+		setInterval(this.saveDict, 15000); 
+	},
+
+	/** append wordlist to dict and save expanded dictionary */
+	saveDict: function() {
+		var wordlistsi = this.state.wordlist.map(function(w) { return w.si; });
+		window.localStorage.dict = JSON.stringify(_.uniq(wordlistsi.concat(this.state.dict)));
 	},
 
 	/** when a user clicks on a suggestion from the autosuggest list, select it as 
@@ -169,7 +177,7 @@ var Sinhetic = React.createClass({
 	autosuggest: function(text) {
 		var regexp = new RegExp(text, 'i'); 
 		this.setState({
-			autosug : _.filter(this.state.customdict, function(elem) { return regexp.test(elem); }).slice(0,5)
+			autosug : _.filter(this.state.dict, function(elem) { return regexp.test(elem); }).slice(0,5)
 		});
 	},
 
