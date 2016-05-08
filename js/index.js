@@ -41,6 +41,7 @@ var SinhalaDict = require('./sinhaladict');
 var Sinhala     = require('./sinhala');
 var sinhala     = new Sinhala();
 
+/** custom word component to display words in both autosuggest and wordlist */
 var Word = React.createClass({
 	select: function(event) {
 		this.props.onSelect(this.props.nodeid);
@@ -50,6 +51,7 @@ var Word = React.createClass({
 	}
 });
 
+/** main react component */
 var Sinhetic = React.createClass({
 	getInitialState: function () {
 		return { 
@@ -62,6 +64,8 @@ var Sinhetic = React.createClass({
 		};
 	},
 
+	/** when a user clicks on a suggestion from the autosuggest list, select it as 
+	the submission by putting its values as app state */
 	selectSuggestion: function(nodeid) {
 		this.setState({
 			curlatext 	: sinhala.toLatin(this.state.autosug[nodeid]),
@@ -71,6 +75,8 @@ var Sinhetic = React.createClass({
 		setTimeout(this.handleSubmit, 50);
 	},
 
+	/** when a user clicks on a word in the wordlist to edit, set editing mode (with word index),
+	and set word values as app state */
 	editWord: function(nodeid) {
 		this.setState({
 			editing		: nodeid,
@@ -81,6 +87,7 @@ var Sinhetic = React.createClass({
 		this.autosuggest(this.state.wordlist[nodeid].si);
 	},
 
+	/** handle various edit actions on the wordlist: append, edit and delete */
 	editWordlist: function(action, word) {
 		var wordlist = this.state.wordlist;
 		switch(action) {
@@ -112,6 +119,7 @@ var Sinhetic = React.createClass({
 		this.setState(this.getInitialState);
 	},
 
+	/** on submitting a word, edit or append to wordlist depending on editing mode */
 	handleSubmit: function (event) {
 		var val = this.state.curlatext.trim();
 		if (val) {
@@ -125,6 +133,7 @@ var Sinhetic = React.createClass({
 		}
 	},
 
+	/** if escape key, exit editing mode. if enter or space key, submit textbox value to append/edit */
 	handleKeyDown: function (event) {
 		if (event.which === ESCAPE_KEY) {
 			this.setState({ curlatext: '', cursitext: '', autosug: [], editing: null });
@@ -133,6 +142,7 @@ var Sinhetic = React.createClass({
 		}
 	},
 
+	/** handler for changes to the input textbox, updates state vars that are tied to textbox */
 	handleChange: function (event) {
 		var sitext = sinhala.fromLatin(event.target.value).trim();
 		this.setState({
@@ -143,6 +153,7 @@ var Sinhetic = React.createClass({
 		if (sitext) { this.autosuggest(sitext); }
 	},
 
+	/** shows autosuggest list based on input */
 	autosuggest: function(text) {
 		var regexp = new RegExp(text, 'i'); 
 		this.setState({
@@ -150,10 +161,12 @@ var Sinhetic = React.createClass({
 		});
 	},
 
+	/** render function. displays delete button if in editing mode, and displays current 
+	word at the start of autosuggest if input isn't empty */
 	render: function () {
 		var _self = this;
-		var deleteButton = this.state.editing !== null ? <button className="btn btn-negative deletebtn" onClick={this.handleDelete}><span className="icon icon-trash"/></button> : null;
-		var dictionary = this.state.cursitext.length ? <div className="word">{ this.state.cursitext }</div> : null;
+		var deletebtn = this.state.editing !== null ? <button className="btn btn-negative deletebtn" onClick={this.handleDelete}><span className="icon icon-trash"/></button> : null;
+		var curword = this.state.cursitext.length ? <div className="word">{ this.state.cursitext }</div> : null;
 
 		return (
 			<div>
@@ -176,9 +189,9 @@ var Sinhetic = React.createClass({
 				</div>
 				
 				<nav className="bar bar-tab bar-bottom">
-					{deleteButton}
+					{deletebtn}
 					<div className="dictionary">
-						{dictionary}
+						{curword}
 						{
 							this.state.autosug.map(function(w, index) {
 								return <Word key={index} nodeid={index} text={w} onSelect={_self.selectSuggestion} />;
@@ -186,15 +199,15 @@ var Sinhetic = React.createClass({
 						}
 					</div>
 					<input
-							ref="entertext"
-							type="text" 
-							placeholder="Type Something..." 
-							value={this.state.curlatext}
-							onChange={this.handleChange}
-							onKeyDown={this.handleKeyDown}
-							autocorrect="off" 
-							autocapitalize="off" 
-							autofocus/>
+						ref="entertext"
+						type="text" 
+						placeholder="Type Something..." 
+						value={this.state.curlatext}
+						onChange={this.handleChange}
+						onKeyDown={this.handleKeyDown}
+						autocorrect="off" 
+						autocapitalize="off" 
+						autofocus />
 				</nav>
 			</div>
 		);
