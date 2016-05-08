@@ -42,6 +42,7 @@ var SinhalaDict = require('./sinhaladict');
 var Sinhala = require('./sinhala');
 var sinhala = new Sinhala();
 
+/** custom word component to display words in both autosuggest and wordlist */
 var Word = React.createClass({
 	displayName: 'Word',
 
@@ -57,6 +58,7 @@ var Word = React.createClass({
 	}
 });
 
+/** main react component */
 var Sinhetic = React.createClass({
 	displayName: 'Sinhetic',
 
@@ -71,6 +73,8 @@ var Sinhetic = React.createClass({
 		};
 	},
 
+	/** when a user clicks on a suggestion from the autosuggest list, select it as 
+ the submission by putting its values as app state */
 	selectSuggestion: function selectSuggestion(nodeid) {
 		this.setState({
 			curlatext: sinhala.toLatin(this.state.autosug[nodeid]),
@@ -80,6 +84,8 @@ var Sinhetic = React.createClass({
 		setTimeout(this.handleSubmit, 50);
 	},
 
+	/** when a user clicks on a word in the wordlist to edit, set editing mode (with word index),
+ and set word values as app state */
 	editWord: function editWord(nodeid) {
 		this.setState({
 			editing: nodeid,
@@ -90,6 +96,7 @@ var Sinhetic = React.createClass({
 		this.autosuggest(this.state.wordlist[nodeid].si);
 	},
 
+	/** handle various edit actions on the wordlist: append, edit and delete */
 	editWordlist: function editWordlist(action, word) {
 		var wordlist = this.state.wordlist;
 		switch (action) {
@@ -121,6 +128,7 @@ var Sinhetic = React.createClass({
 		this.setState(this.getInitialState);
 	},
 
+	/** on submitting a word, edit or append to wordlist depending on editing mode */
 	handleSubmit: function handleSubmit(event) {
 		var val = this.state.curlatext.trim();
 		if (val) {
@@ -133,6 +141,7 @@ var Sinhetic = React.createClass({
 		}
 	},
 
+	/** if escape key, exit editing mode. if enter or space key, submit textbox value to append/edit */
 	handleKeyDown: function handleKeyDown(event) {
 		if (event.which === ESCAPE_KEY) {
 			this.setState({ curlatext: '', cursitext: '', autosug: [], editing: null });
@@ -141,6 +150,7 @@ var Sinhetic = React.createClass({
 		}
 	},
 
+	/** handler for changes to the input textbox, updates state vars that are tied to textbox */
 	handleChange: function handleChange(event) {
 		var sitext = sinhala.fromLatin(event.target.value).trim();
 		this.setState({
@@ -153,6 +163,7 @@ var Sinhetic = React.createClass({
 		}
 	},
 
+	/** shows autosuggest list based on input */
 	autosuggest: function autosuggest(text) {
 		var regexp = new RegExp(text, 'i');
 		this.setState({
@@ -162,14 +173,16 @@ var Sinhetic = React.createClass({
 		});
 	},
 
+	/** render function. displays delete button if in editing mode, and displays current 
+ word at the start of autosuggest if input isn't empty */
 	render: function render() {
 		var _self = this;
-		var deleteButton = this.state.editing !== null ? React.createElement(
+		var deletebtn = this.state.editing !== null ? React.createElement(
 			'button',
 			{ className: 'btn btn-negative deletebtn', onClick: this.handleDelete },
 			React.createElement('span', { className: 'icon icon-trash' })
 		) : null;
-		var dictionary = this.state.cursitext.length ? React.createElement(
+		var curword = this.state.cursitext.length ? React.createElement(
 			'div',
 			{ className: 'word' },
 			this.state.cursitext
@@ -203,11 +216,11 @@ var Sinhetic = React.createClass({
 			React.createElement(
 				'nav',
 				{ className: 'bar bar-tab bar-bottom' },
-				deleteButton,
+				deletebtn,
 				React.createElement(
 					'div',
 					{ className: 'dictionary' },
-					dictionary,
+					curword,
 					this.state.autosug.map(function (w, index) {
 						return React.createElement(Word, { key: index, nodeid: index, text: w, onSelect: _self.selectSuggestion });
 					})
